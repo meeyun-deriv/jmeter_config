@@ -16,33 +16,18 @@ jobs:
           name:  Get QA No. and Testlink message
           command: |
             COMMIT_MESSAGE=$(git log --format=oneline -n 1 $CIRCLE_SHA1)
-            set -- $COMMIT_MESSAGE
-            echo this is the commit message $COMMIT_MESSAGE
-            echo "export QANo='$(echo -n $COMMIT_MESSAGE | grep -o '[^ ]\+$')'" >> $BASH_ENV
-            echo "export testLink='$(echo $COMMIT_MESSAGE | awk '{print $2}')'" >> $BASH_ENV
+            export QANo="$(echo -n $COMMIT_MESSAGE | grep -o '[^ ]\+$')"
+            export testLink=$(echo $COMMIT_MESSAGE | awk '{print $2}')
+            echo $QANo
+            echo $testLink
       - run: 
           name: mkdir -p workspace
           command: mkdir -p workspace
       - run: 
-          name: Put QA No is workspace 
-          command: |
-            echo "export QABox=$QANo" >> workspace/new-env-vars
-            cat workspace/new-env-vars >> $BASH_ENV
-      - run: 
-          name: Put test-link is workspace 
-          command: |
-            COMMIT_MESSAGE=$(git log --format=oneline -n 1 $CIRCLE_SHA1)
-            set -- $COMMIT_MESSAGE
-            echo this is the commit message $COMMIT_MESSAGE
-            export testLink="$(echo $COMMIT_MESSAGE | awk '{print $2}')"
-            echo this is the testlink $testLink
-            echo "export TestLink=$testLink" >> workspace/new-env-vars
-            cat workspace/new-env-vars >> $BASH_ENV
-            jmeter -n -t JmxFile/DerivPage$testLink.jmx -l jmeter_report.csv -e -o results_folder
-      - persist_to_workspace:
-          root: workspace
-          paths:
-              - new-env-vars
+          name: Run Jmx file
+          command: jmeter -n -t JmxFile/DerivPage$testLink.jmx -l jmeter_report.csv -e -o results_folder
+      - store_artifacts:
+          path: results_folder
 
   # Jmeter_Report:
   #   working_directory: /tmp/cci-test
@@ -73,4 +58,4 @@ workflows:
       - Install_Git
       # - Jmeter_Report:
       #     requires:
-      #       - Install_Git
+      #       - Install_Gits
