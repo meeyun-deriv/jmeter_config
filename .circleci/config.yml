@@ -1,7 +1,7 @@
 version: 2.1
 jobs:
   Install_Git:
-  # working_directory: ~/repo
+    working_directory: ~/repo
     docker:
       - image: justb4/jmeter:latest
     steps:
@@ -20,12 +20,14 @@ jobs:
             export testLink=$(echo $COMMIT_MESSAGE | awk '{print $2}')
             echo $QANo
             echo $testLink
-      - run: 
-          name: mkdir -p workspace
-          command: mkdir -p workspace
-      - run: 
-          name: Run Jmx file
-          command: jmeter -n -t JmxFile/DerivPage$testLink.jmx -l jmeter_report.csv -e -o results_folder
+            mkdir -p workspace
+            jmeter -n -t JmxFile/DerivPage$testLink.jmx -l jmeter_report.csv -e -o results_folder
+      #- run: 
+      #    name: mkdir -p workspace
+      #    command: mkdir -p workspace
+      #- run: 
+      #    name: Run Jmx file
+      #    command: jmeter -n -t JmxFile/DerivPage$testLink.jmx -l jmeter_report.csv -e -o results_folder
       - store_artifacts:
           path: results_folder
 
